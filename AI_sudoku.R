@@ -51,4 +51,4 @@ megold(msudoku)
 
 #megnézni, hogy milyen új értékeket írt be az eredetihez képest
 megold(msudoku)-msudoku
-
+ 
