@@ -52,3 +52,8 @@ megold(msudoku)
 #megnézni, hogy milyen új értékeket írt be az eredetihez képest
 megold(msudoku)-msudoku
  
+
+
+for(i in 1:3){for (j in 1:3){
+  assign(paste("m",i,j,sep = ""),msudoku[(1+3*(i-1)):(3+3*(i-1)),(1+3*(j-1)):(3+3*(j-1))])
+}}
