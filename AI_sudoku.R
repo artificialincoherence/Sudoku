@@ -1,5 +1,5 @@
 
-# Elıszˆr le kell futtatni az egÈszet a "----------" vonalig
+# El≈ësz√∂r le kell futtatni az eg√©szet a "----------" vonalig
 
 easy = "9 2 5   3, 43278   ,  89    1,6   3  7 ,2 5   4 9, 1  9   6,3    19  ,   46935 ,7   8 2 4"
 medium = "    7 4 1,   3 4  9,3     28 ,8  9   56,         ,65   1  7, 43     8,9  4 8   ,1 2 5    "
@@ -8,7 +8,7 @@ extreme1 = "1   68   ,5 9  4 7 , 2 9    3,     2  7, 6     4 ,9  4     ,2    1 8
 extreme2 = "   7   2 , 7   59  ,  4  1 6 , 9   7  2,3       8,6  2   7 , 4 3  1  ,  69   8 , 1   4   "
 extreme3 = "   4 28  ,7    9  1,    8  73, 2   79  ,    2    ,  31   6 ,84  1    ,3  2    5,  79 8   "
 
-#beolvassa a megadott j·tÈkot
+#beolvassa a megadott j√°t√©kot
 beolvas<-function(sudoku){
 msus<<-matrix(0,9,9)
 msudoku<<-matrix(0,9,9)
@@ -23,17 +23,17 @@ print(msudoku)}
 megold<-function(msudoku){
   mstart<<-msudoku
 while(sum(msudoku-msus)){
-  psol<-array(0,c(3,9,81)) # lehetsÈges ÈrtÈkek m·trixa
+  psol<-array(0,c(3,9,81)) # lehets√©ges √©rt√©kek m√°trixa
 for(i in 1:9){for (j in 1:9){
-  psol[1,j,which(msudoku[i,]==0)*9-9+i]<-sum(!sum(msudoku[i,]==j)) # lehetsÈges ÈrtÈkek sor szerint
-  psol[2,j,which(msudoku[,i]==0)+(i-1)*9]<-sum(!sum(msudoku[,i]==j)) # lehetsÈges ÈrtÈkek oszlop szerint
-  if(msudoku[(j-1)*9+i]==0){for(k in 1:9){ #lehetsÈges ÈrtÈkek nÈgyzetek szerint
+  psol[1,j,which(msudoku[i,]==0)*9-9+i]<-sum(!sum(msudoku[i,]==j)) # lehets√©ges √©rt√©kek sor szerint
+  psol[2,j,which(msudoku[,i]==0)+(i-1)*9]<-sum(!sum(msudoku[,i]==j)) # lehets√©ges √©rt√©kek oszlop szerint
+  if(msudoku[(j-1)*9+i]==0){for(k in 1:9){ #lehets√©ges √©rt√©kek n√©gyzetek szerint
   psol[3,k,(j-1)*9+i]<-sum(!sum(msudoku[(1+3*(ceiling(i/3)-1)):(3+3*(ceiling(i/3)-1)),(1+3*(ceiling(j/3)-1)):(3+3*(ceiling(j/3)-1))]==k))
   }}}}
 
-#elmentem ˙j nÈvvel, hogy ˆssze tudjam hasonlÌtani
+#elmentem √∫j n√©vvel, hogy √∂ssze tudjam hasonl√≠tani
   msus<-msudoku
-#beÌrja a sz·mot, ha csak 1 lehetsÈges sz·m van, ami mind a h·rom sz˚rı szerint szerepelhet
+#be√≠rja a sz√°mot, ha csak 1 lehets√©ges sz√°m van, ami mind a h√°rom sz≈±r≈ë szerint szerepelhet
 for(i in 1:81){
   if(sum(colSums(psol[,,i])==3)==1){
     msudoku[i]<-col(psol[,,80])[1,colSums(psol[,,i])==3]
@@ -43,12 +43,13 @@ for(i in 1:81){
 
 #----------
 
-#beolvas f¸ggvÈnybe az egyik inputot a 6 kˆz¸l (most csak easy-re fut le jÛl, a tˆbbire nincs egyÈrtelm˚ lÈpÈs)
+#beolvas f√ºggv√©nybe az egyik inputot a 6 k√∂z√ºl (most csak easy-re fut le j√≥l, a t√∂bbire nincs egy√©rtelm≈± l√©p√©s)
 beolvas(easy)
 
-#ezt v·ltoztat·s nÈlk¸l lehet futtatni, mert msudoku-nak menti a beolvas·s ut·n
+#ezt v√°ltoztat√°s n√©lk√ºl lehet futtatni, mert msudoku-nak menti a beolvas√°s ut√°n
 megold(msudoku)
 
-#megnÈzni, hogy milyen ˙j ÈrtÈkeket Ìrt be az eredetihez kÈpest
+#megn√©zni, hogy milyen √∫j √©rt√©keket √≠rt be az eredetihez k√©pest
 megold(msudoku)-msudoku
 
+# ha ide be√≠rok valamit, azt tudom commitelni
