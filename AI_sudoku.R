@@ -1,4 +1,5 @@
 
+
 # Először le kell futtatni az egészet a "----------" vonalig
 
 easy = "9 2 5   3, 43278   ,  89    1,6   3  7 ,2 5   4 9, 1  9   6,3    19  ,   46935 ,7   8 2 4"
@@ -20,23 +21,24 @@ msudoku[is.na(msudoku)]<<-0
 #print(msudoku)
 }
 
+milehet<-function(msudoku){
+psol<<-array(0,c(3,9,81)) # lehetséges értékek mátrixa
+for(i in 1:9){for (j in 1:9){
+  psol[1,j,which(msudoku[i,]==0)*9-9+i]<<-sum(!sum(msudoku[i,]==j)) # lehetséges értékek sor szerint
+  psol[2,j,which(msudoku[,i]==0)+(i-1)*9]<<-sum(!sum(msudoku[,i]==j)) # lehetséges értékek oszlop szerint
+  if(msudoku[(j-1)*9+i]==0){for(k in 1:9){ #lehetséges értékek kis négyzetek szerint
+    psol[3,k,(j-1)*9+i]<<-sum(!sum(msudoku[(1+3*(ceiling(i/3)-1)):(3+3*(ceiling(i/3)-1)),(1+3*(ceiling(j/3)-1)):(3+3*(ceiling(j/3)-1))]==k))
+  }}}}}
+
 
 megold<-function(msudoku){
   m<-Sys.time()
   mstart<<-msudoku
 while(sum(msudoku-msus)){
-  psol<-array(0,c(3,9,81)) # lehetséges értékek mátrixa
-for(i in 1:9){for (j in 1:9){
-  psol[1,j,which(msudoku[i,]==0)*9-9+i]<-sum(!sum(msudoku[i,]==j)) # lehetséges értékek sor szerint
-  psol[2,j,which(msudoku[,i]==0)+(i-1)*9]<-sum(!sum(msudoku[,i]==j)) # lehetséges értékek oszlop szerint
-  if(msudoku[(j-1)*9+i]==0){for(k in 1:9){ #lehetséges értékek kis négyzetek szerint
-  psol[3,k,(j-1)*9+i]<-sum(!sum(msudoku[(1+3*(ceiling(i/3)-1)):(3+3*(ceiling(i/3)-1)),(1+3*(ceiling(j/3)-1)):(3+3*(ceiling(j/3)-1))]==k))
-  }}}
-  ms<<-msudoku}
-
+  milehet(msudoku)
+  
 #elmentem új névvel, hogy össze tudjam hasonlítani
   msus<-msudoku
-  
   
 #beírja a számot, ha csak 1 lehetséges szám van, ami mind a három szűrő szerint szerepelhet
 for(i in 1:81){
@@ -46,6 +48,76 @@ for(i in 1:81){
   print(msudoku)
   print(Sys.time()-m)}
 
+
+
+
+#genereál sok véletlen mátrixot 
+
+generate<-function(easy){
+  beolvas(easy)
+  zerohelyek<<-which(msudoku==0)
+  milehet(msudoku)
+  n<<-10*sum(msudoku==0)
+  fit<<-rep(0,n)
+  elem<-matrix(1:81,9,9)
+  gen<<-array(0,c(9,9,n))
+  for(k in 1:n){beolvas(easy)
+    for(i in 1:3){for (j in 1:3){
+      m<<-msudoku[(1+3*(i-1)):(3+3*(i-1)),(1+3*(j-1)):(3+3*(j-1))]
+      if(sum(m==0)>0){a<<-min(elem[(1+3*(i-1)):(3+3*(i-1)),(1+3*(j-1)):(3+3*(j-1))][elem[(1+3*(i-1)):(3+3*(i-1)),(1+3*(j-1)):(3+3*(j-1))] %in% which(msudoku==0)])
+      m[m==0]<<-sample(which(psol[3,,a]==1))
+      msudoku[(1+3*(i-1)):(3+3*(i-1)),(1+3*(j-1)):(3+3*(j-1))]<<-m
+      }
+    }
+    } 
+    gen[,,k]<<-msudoku
+    ut<<-rep(0,81)
+    for(i in zerohelyek){#soronként, oszloponként megszámolja mennyi van az adott számból
+      ut[i]<<-sum(msudoku[row(msudoku)[i],]==msudoku[i])+sum(msudoku[,col(msudoku)[i]]==msudoku[i])-1
+    }
+    fit[k]<<-sum(ut)
+  }
+  
+  # a legjobb mátrixnak visszaadja a a cellánkénti előfordulási értékeket
+  ez<<-gen[,,which(fit==min(fit))[1]]
+  ut1<<-rep(0,81)
+  for(i in zerohelyek){
+    ut1[i]<<-sum(ez[row(ez)[i],]==ez[i])+sum(ez[,col(ez)[i]]==ez[i])-1
+  }
+}
+
+# felcseréli a vektor két elemét
+felcsere <- function(sorrend,ezt,erre) { 
+  sorrend[c(ezt,erre)] <<- sorrend[c(erre,ezt)]} 
+
+
+
+
+
+#ezelőtt futtasd generate-et
+#felcserél két elemet kisnégyzeten belül 
+valaszt<-function(){
+  eze<<-ez # hogy a végén lássam mi változott
+  elem<<-matrix(1:81,9,9)
+  worst<<-sample(which(ut1==max(ut1)),1) # kiválaszt a legrosszabbak közül 1-et véletlenül
+  ro<<-ceiling(row(elem)[worst]/3)
+  co<<-ceiling(col(elem)[worst]/3)
+  toligr<<-(1+3*(ro-1)):(3+3*(ro-1))
+  toligc<<-(1+3*(co-1)):(3+3*(co-1))
+  m<<-ez[toligr,toligc]
+  csere<<-ez[worst] #m[which(elem[toligr,toligc]==worst)] # ezt a számot akarom kicserélni
+  sorrend<<-m[which(msudoku[toligr,toligc]==0)]# ebben a sorrendben írta be vélelenül
+  ezt<<-which(sorrend==csere) # amelyiket kiválasztottam mint legrosszabb
+  #erre<<-sample(which(sorrend!=csere),1) # egy másik véletlenszerűen választott
+  erre<<-order(ut1[elem[toligr,toligc][msudoku[toligr,toligc]==0]],decreasing = T)[2]
+  felcsere(sorrend,ezt,erre)
+  ez[toligr,toligc][msudoku[toligr,toligc]==0]<<-sorrend # beírja az új sorrendben a számokat
+  
+  for(i in zerohelyek){
+    ut1[i]<<-sum(ez[row(ez)[i],]==ez[i])+sum(ez[,col(ez)[i]]==ez[i])-1
+  }
+  print(ez-eze)
+}
 
 #----------
 
@@ -62,39 +134,47 @@ megold(msudoku)-msudoku
 
 jps<-t(colSums(psol)==3)
 
-for(i in 1:9){for (j in 1:9){
-  if(msudoku[(j-1)*9+i]==0){for(k in 1:9){ #lehetséges értékek kis négyzetek szerint
-    psol[3,k,(j-1)*9+i]<-sum(!sum(msudoku[(1+3*(ceiling(i/3)-1)):(3+3*(ceiling(i/3)-1)),(1+3*(ceiling(j/3)-1)):(3+3*(ceiling(j/3)-1))]==k))
-  }}}}
 
-#genereál sok véletlen mátrixot 
-
+generate(easy)
 beolvas(easy)
-n<-10*sum(msudoku==0)
-fit<-rep(0,n)
-gen<-array(0,c(9,9,n))
-for(k in 1:n){beolvas(easy)
+valaszt()
+
+# nszam<-length(zerohelyek)
+# fitrossz<-sum(ut1)
+while(sum(ut1) > length(zerohelyek)){
+  Sys.sleep(0.3)
+  valaszt()
+  print(sum(ut1))
+}
+
+t<-system.time()
+while(sum(ut1) > 60){
+  valaszt()
+}
+system.time()-t
+
+Sys.sleep(0.7)
+ut1
+
+s<-ut1
+valaszt()
+ut1-s
+
+
+#innentől már nem tudom mi van, csak próbálgattam valamihez 
+
+
+length(sorrend)
+ms
+
+worst<-which(ut1==max(ut1))[1]
+msudoku[33]
 for(i in 1:3){for (j in 1:3){
-  m<-msudoku[(1+3*(i-1)):(3+3*(i-1)),(1+3*(j-1)):(3+3*(j-1))]
-  if(sum(m==0)>0){a<-min(elem[(1+3*(i-1)):(3+3*(i-1)),(1+3*(j-1)):(3+3*(j-1))][elem[(1+3*(i-1)):(3+3*(i-1)),(1+3*(j-1)):(3+3*(j-1))] %in% which(msudoku==0)])
-  m[m==0]<-sample(which(psol[3,,a]==1))
-  msudoku[(1+3*(i-1)):(3+3*(i-1)),(1+3*(j-1)):(3+3*(j-1))]<-m
-  }
+  
 }
 } 
-  gen[,,k]<-msudoku
-  ut<-rep(0,81)
-  for(i in 1:81){
-    ut[i]<-sum(msudoku[row(msudoku)[i],]==msudoku[i])+sum(msudoku[,col(msudoku)[i]]==msudoku[i])-1
-  }
-  fit[k]<-sum(ut)
-}
 
-# a legjobb mátrixnak visszaadja a a cellánkénti előfordulási értékeket
-ez<-gen[,,which(fit==min(fit))[1]]
-for(i in 1:81){
-  ut[i]<-sum(ez[row(ez)[i],]==ez[i])+sum(ez[,col(ez)[i]]==ez[i])-1
-}
+
 
 #véletlen feltöltéshez kellett
 elem<-matrix(1:81,9,9)
@@ -142,5 +222,39 @@ sum(ut)
   # 
 
 w<-t(colSums(ut))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+elem<-matrix(1:81,9,9)
+worst<-sample(which(ut1==max(ut1)),1) # kiválaszt a legrosszabbak közül 1-et véletlenül
+ro<-ceiling(row(elem)[worst]/3)
+co<-ceiling(col(elem)[worst]/3)
+toligr<-(1+3*(ro-1)):(3+3*(ro-1))
+toligc<-(1+3*(co-1)):(3+3*(co-1))
+m<-ez[toligr,toligc]
+csere<-ez[worst]#m[which(elem[toligr,toligc]==worst)] # ezt a számot akarom kicserélni
+sorrend<-m[which(msudoku[toligr,toligc]==0)]# ebben a sorrendben írta be vélelenül
+ezt<-which(sorrend==csere) # amelyiket kiválasztottam mint legrosszabb
+#erre<<-sample(which(sorrend!=csere),1) # egy másik véletlenszerűen választott
+erre<-order(ut1[elem[toligr,toligc][msudoku[toligr,toligc]==0]],decreasing = T)[2]
+felcsere(sorrend,ezt,erre)
+ez[toligr,toligc][msudoku[toligr,toligc]==0]<<-sorrend # beírja az új sorrendben a számokat
+
+for(i in zerohelyek){
+  ut1[i]<<-sum(ez[row(ez)[i],]==ez[i])+sum(ez[,col(ez)[i]]==ez[i])-1
+}
 
 
