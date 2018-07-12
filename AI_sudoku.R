@@ -46,9 +46,13 @@ jobeir<-function(){
   
   #ez nézi, hogy összesen csak 1 érték lehetett-e
  hely<<-which(rowSums(jps)==1)# melyik helyen lehet csak 1 alapból
-  #if(length(hely)>0){
-  ertek<<-which(jps[hely,])#ezeken a helyeken mit kell beírni
+  if(length(hely)>0){
+  ertek<<-col(jps[hely,,drop=F])[jps[hely,,drop=F]]#ezeken a helyeken mit kell beírni
   msudoku[hely]<<-ertek
+  p=0
+  for(p in 1:length(hely)){
+  jps[hely[p],ertek[p]]<<-F}
+  }
   #diag(jps[hely,ertek])<<-F
     # subm<<-jps[hely,ertek]# visszaírja hogy ne vizsgálja újra később, amit most kivett
     # diag(subm)<<-F
@@ -57,7 +61,7 @@ jobeir<-function(){
   for(i in 1:9){
     #oszlop szerinti egyszeres eset
     oszlop<<-(9*(i-1)+1):(9*(i-1)+9)
-    ertek1<<-which(colSums(jps[oszlop,])==10)
+    ertek1<<-which(colSums(jps[oszlop,])==1)
     hely1<<-oszlop[row(jps[oszlop,ertek1,drop=F])[jps[oszlop,ertek1]]] # drop, hogy mátrix maradjon, és tudja a sorokat nézni
     msudoku[hely1]<<-ertek1}# beírja az egyértelmű értéket
   
@@ -93,6 +97,7 @@ jobeir<-function(){
     # #diag(jps[hely3,ertek3])<<-F
     
   }
+
 
 
 
