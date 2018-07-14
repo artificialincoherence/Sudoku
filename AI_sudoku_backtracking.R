@@ -1,4 +1,12 @@
-# Elıszˆr le kell futtatni az egÈszet a "----------" vonalig
+# El≈ësz√∂r le kell futtatni az eg√©szet a "---------" vonalig a v√©g√©n
+
+#ezeket kell telep√≠teni
+#install.packages("abind")
+library(abind) 
+
+#vizualiz√°ci√≥hoz, √©s a megold√°s gyorsas√°g√°nak √∂sszehasonl√≠t√°s√°hoz
+#install.packages("sudokuAlt")
+library(sudokuAlt)
 
 easy = "9 2 5   3, 43278   ,  89    1,6   3  7 ,2 5   4 9, 1  9   6,3    19  ,   46935 ,7   8 2 4"
 medium = "    7 4 1,   3 4  9,3     28 ,8  9   56,         ,65   1  7, 43     8,9  4 8   ,1 2 5    "
@@ -9,101 +17,86 @@ extreme3 = "   4 28  ,7    9  1,    8  73, 2   79  ,    2    ,  31   6 ,84  1   
 extreme4 = "  45    6, 2  6  7  ,8    73  ,5    17  , 3  8  9 ,  27    8,  78    9, 8  4  6 ,4    51  "
 hardest = "8        ,  36     , 7  9 2  , 5   7   ,    457  ,   1   3 ,  1    68,  85   1 , 9    4  "
 
-#beolvassa a megadott j·tÈkot
+#csak a v√©g√©hez, hogy k√∂nnyen lehessen v√°lasztani
+game<-c(easy,medium,hard,extreme1,extreme2,extreme3,extreme4,hardest)
+
+#beolvassa a megadott j√°t√©kot
 beolvas<-function(sudoku){
 msus<<-matrix(0,9,9)
 msudoku<<-matrix(0,9,9)
-colnames(msudoku)<<-paste("C",c(1:9),sep = "")
-rownames(msudoku)<<-paste("R",c(1:9),sep = "")
+colnames(msudoku)<<-paste("C",c(1:9),sep = "") #1:9 #
+rownames(msudoku)<<-paste("R",c(1:9),sep = "") #c("A","B","C","D","E","F","G","H","I") # 
 for(i in 1:9){
 msudoku[i,]<<-rbind(as.numeric(unlist(strsplit(unlist(strsplit(sudoku, ","))[i],NULL))[1:9]))}                                                 
 msudoku[is.na(msudoku)]<<-0
 #print(msudoku)
 }
 
+#megmondja, hogy az √ºres cell√°kban milyen √©rt√©kek szerepelhetnek
 milehet<-function(msudoku){
-psol<<-array(0,c(3,9,81)) # lehetsÈges ÈrtÈkek m·trixa
+psol<<-array(0,c(3,9,81)) # lehets√©ges √©rt√©kek m√°trixa
 for(i in 1:9){for (j in 1:9){
-  psol[1,j,which(msudoku[i,]==0)*9-9+i]<<-sum(!sum(msudoku[i,]==j)) # lehetsÈges ÈrtÈkek sor szerint
-  psol[2,j,which(msudoku[,i]==0)+(i-1)*9]<<-sum(!sum(msudoku[,i]==j)) # lehetsÈges ÈrtÈkek oszlop szerint
-  if(msudoku[(j-1)*9+i]==0){for(k in 1:9){ #lehetsÈges ÈrtÈkek kis nÈgyzetek szerint
+  psol[1,j,which(msudoku[i,]==0)*9-9+i]<<-sum(!sum(msudoku[i,]==j)) # lehets√©ges √©rt√©kek sor szerint
+  psol[2,j,which(msudoku[,i]==0)+(i-1)*9]<<-sum(!sum(msudoku[,i]==j)) # lehets√©ges √©rt√©kek oszlop szerint
+  if(msudoku[(j-1)*9+i]==0){for(k in 1:9){ #lehets√©ges √©rt√©kek kis n√©gyzetek szerint
     psol[3,k,(j-1)*9+i]<<-sum(!sum(msudoku[(1+3*(ceiling(i/3)-1)):(3+3*(ceiling(i/3)-1)),(1+3*(ceiling(j/3)-1)):(3+3*(ceiling(j/3)-1))]==k))
   }}}}
 jps<<-t(colSums(psol)==3)
-}
+}# lehets√©ges √©rt√©kek jobban oszlopban cella sz√°ma, ahol TRUE van oda mehet az oszlop szerinti sz√°m
 
 
 
 
 
+#az √ºres helyekre be√≠rja az egy√©rtelm≈± eseteket
 jobeir<-function(){
   
-  milehet(msudoku)# meghat·rozza jps -t hogy hova lehet Ìrni mit
+  milehet(msudoku)# meghat√°rozza jps -t hogy hova lehet √≠rni mit
   
-  mstart<<-msudoku # hogy loopn·l ˆssze tudja hasonlÌtani a mostanival
+  mstart<<-msudoku # hogy loopn√°l √∂ssze tudja hasonl√≠tani a mostanival
   
-  #ez nÈzi, hogy ˆsszesen csak 1 ÈrtÈk lehetett-e
- hely<<-which(rowSums(jps)==1)# melyik helyen lehet csak 1 alapbÛl
+  #ez n√©zi, hogy √∂sszesen csak 1 √©rt√©k lehetett-e
+ hely<<-which(rowSums(jps)==1)# melyik helyen lehet csak 1 alapb√≥l
   if(length(hely)>0){
-  ertek<<-row(t(jps[hely,,drop=F]))[t(jps[hely,,drop=F])]#col(jps[hely,,drop=F])[jps[hely,,drop=F]]#ezeken a helyeken mit kell beÌrni
+  ertek<<-row(t(jps[hely,,drop=F]))[t(jps[hely,,drop=F])]#ezeken a helyeken mit kell be√≠rni
   msudoku[hely]<<-ertek
-  # p=0
-  # for(p in 1:length(hely)){
-  # jps[hely[p],ertek[p]]<<-F # ·tÌrja null·ra azt a helyet, ahol csak ezt az egyet lehetett beÌrni
   }
   
-  #diag(jps[hely,ertek])<<-F
-    # subm<<-jps[hely,ertek]# visszaÌrja hogy ne vizsg·lja ˙jra kÈsıbb, amit most kivett
-    # diag(subm)<<-F
-    # jps[hely,ertek]<<-subm}#diag(jps[hely1,ertek1])<<-F ilyesmivel nem futott le (elvileg bug)
-    milehet(msudoku)
+ #milehet(msudoku)
+ 
+ #oszlop szerinti egyszeres eset
   for(i in 1:9){
-    #oszlop szerinti egyszeres eset
     oszlop<<-(9*(i-1)+1):(9*(i-1)+9)
     ertek1<<-which(colSums(jps[oszlop,])==1)
-    hely1<<-oszlop[row(jps[oszlop,ertek1,drop=F])[jps[oszlop,ertek1]]] # drop, hogy m·trix maradjon, Ès tudja a sorokat nÈzni
-    msudoku[hely1]<<-ertek1}# beÌrja az egyÈrtelm˚ ÈrtÈket
+    hely1<<-oszlop[row(jps[oszlop,ertek1,drop=F])[jps[oszlop,ertek1]]] # drop, hogy m√°trix maradjon, √©s tudja a sorokat n√©zni
+    msudoku[hely1]<<-ertek1}# be√≠rja az egy√©rtelm≈± √©rt√©ket
     
- milehet(msudoku)
-    #diag(jps[hely1,ertek1])<<-F #a beÌrt helyre visszaÌrja, hogy m·r nem lehet
-    # subm<<-jps[hely1,ertek1]# visszaÌrja hogy ne vizsg·lja ˙jra kÈsıbb, amit most kivett
-    # diag(subm)<<-F
-    # jps[hely1,ertek1]<<-subm#diag(jps[hely1,ertek1])<<-F ilyesmivel nem futott le (elvileg bug)
+ #milehet(msudoku)
     
 #sor szerinti egyszeres eset
   for(i in 1:9){
     sor<<-seq(i,72+i,9)
     ertek2<<-which(colSums(jps[sor,])==1)
-    hely2<<-sor[row(jps[sor,ertek2,drop=F])[jps[sor,ertek2]]] # drop, hogy m·trix maradjon, Ès tudja a sorokat nÈzni
+    hely2<<-sor[row(jps[sor,ertek2,drop=F])[jps[sor,ertek2]]] # drop, hogy m√°trix maradjon, √©s tudja a sorokat n√©zni
     msudoku[hely2]<<-ertek2}
     
-    # subm<<-jps[hely1,ertek1]# visszaÌrja hogy ne vizsg·lja ˙jra kÈsıbb, amit most kivett
-    # diag(subm)<<-F
-    # jps[hely1,ertek1]<<-subm
-    # #diag(jps[hely2,ertek2])<<-F
-    
- milehet(msudoku)
-    #tˆmb szerinti egyszeres eset
+  #milehet(msudoku)
+  #t√∂mb szerinti egyszeres eset
   for(i in 1:9){
     tomb<<-c(seq((3*((i-1)%%3)+1+(ceiling(i/3)-1)*27),(3*((i-1)%%3)+3+(ceiling(i/3)-1)*27),1),
             seq((9+3*((i-1)%%3)+1+(ceiling(i/3)-1)*27),(9+3*((i-1)%%3)+3+(ceiling(i/3)-1)*27),1),
             seq(18+3*((i-1)%%3)+1+(ceiling(i/3)-1)*27,18+3*((i-1)%%3)+3+(ceiling(i/3)-1)*27,1))
     ertek3<<-which(colSums(jps[tomb,])==1) 
-    hely3<<-tomb[row(jps[tomb,ertek3,drop=F])[jps[tomb,ertek3]]] # drop, hogy m·trix maradjon, Ès tudja a sorokat nÈzni
+    hely3<<-tomb[row(jps[tomb,ertek3,drop=F])[jps[tomb,ertek3]]] # drop, hogy m√°trix maradjon, √©s tudja a sorokat n√©zni
     msudoku[hely3]<<-ertek3}
     
-    # subm<<-jps[hely3,ertek3]# visszaÌrja hogy ne vizsg·lja ˙jra kÈsıbb, amit most kivett
-    # diag(subm)<<-F
-    # jps[hely3,ertek3]<<-subm
-    # #diag(jps[hely3,ertek3])<<-F
-    
-  }
+}
 
 
-
+# annyiszor lefut egym√°s ut√°n a jobeir(), amennyiszer tud √∫jat be√≠rni
 jobbmegoldback<-function(game){
   msudoku<<-game
-  m<-Sys.time()
+  #m<-Sys.time()
   mstart<<-matrix(0,9,9)
   while(sum(msudoku-mstart)){
     jobeir()}
@@ -111,23 +104,27 @@ jobbmegoldback<-function(game){
   # print(Sys.time()-m)
   }
 
-#rosszul tˆltˆtte-e fel?
+#rosszul t√∂lt√∂tte-e fel? megn√©zi, hogy j√≥-e az eredm√©ny (vagy r√©szeredm√©ny)
 
 check<-function(){
-  msudoku[msudoku==0]<-NA
-  # sum(unlist(c(apply(msudoku,1,table),apply(msudoku,2,table)))!=1)==0
-  hanyszor<-c(apply(msudoku,1,table),apply(msudoku,2,table))
+  msudoku[msudoku==0]<-NA # hogy a null√°kat ne sz√°molja a gyakoris√°gi t√°bl√°ban
   
-  for(i in 1:9){
+  hanyszor<-c(apply(msudoku,1,table),apply(msudoku,2,table)) # sor √©s oszlop szerint csak 1
+  
+  for(i in 1:9){# t√∂mb√∂k szerint ellen≈ëriz
     tomb<-c(seq((3*((i-1)%%3)+1+(ceiling(i/3)-1)*27),(3*((i-1)%%3)+3+(ceiling(i/3)-1)*27),1),
             seq((9+3*((i-1)%%3)+1+(ceiling(i/3)-1)*27),(9+3*((i-1)%%3)+3+(ceiling(i/3)-1)*27),1),
             seq(18+3*((i-1)%%3)+1+(ceiling(i/3)-1)*27,18+3*((i-1)%%3)+3+(ceiling(i/3)-1)*27,1))
     hanyszor<-c(hanyszor,list(table(msudoku[tomb])))}
-  sum(unlist(hanyszor)!=1)==0
+  sum(unlist(hanyszor)!=1)==0 # TRUE ha nincs ism√©tl≈ëd√©s, FALSE, ha van
 }
 
 
-lepjhatudsz<-function(){#kiveszi az utolsÛ m·trixot Ès ÈrtÈkeket, majd megnÈzi, hogy az ezelıtti jÛ-e, ha nem ˙jra lefut
+# a k√∂vetkez≈ë f√ºggv√©nyhez kell, ha m√°r adott cell√°ban megn√©zte az √∂sszes lehets√©ges esetet, 
+#√©s egyikre se tal√°lt tov√°bbi j√≥ megold√°st, akkor visszal√©p az el≈ëz≈ë cell√°ba, ahova a legkevesebbet 
+#lehetett be√≠rni
+#kiveszi az utols√≥ m√°trixot √©s √©rt√©keket, majd megn√©zi, hogy az ezel≈ëtti j√≥-e, ha nem √∫jra lefut
+lepjhatudsz<-function(){
   nummemory<<-nummemory[-length(nummemory[,1]),,drop=F]
   matrixmemory<<-matrixmemory[,,-dim(matrixmemory)[3],drop=F]
   msudoku<<-matrixmemory[,,dim(matrixmemory)[3]]
@@ -140,7 +137,7 @@ lepjhatudsz<-function(){#kiveszi az utolsÛ m·trixot Ès ÈrtÈkeket, majd megnÈzi, 
   prevind1<<-nummemory[actual,3]
   prevind2<<-nummemory[actual,4]
   
-  #ide kell egy rekurzÌv f¸ggvÈny
+  
   if(tail(which(jps[ezek[prevind1],]),1)==nummemory[actual,2]){
     lepjhatudsz()
   } else {
@@ -152,69 +149,43 @@ lepjhatudsz<-function(){#kiveszi az utolsÛ m·trixot Ès ÈrtÈkeket, majd megnÈzi, 
 
 
 
-
+# egy m√°trixba gy≈±jti (nullhely), hogy mi lesz a k√∂vetkez≈ë tipp, amit be√≠r a sudokuba
+# √©s minden kimenet eset√©n friss√≠ti ezt a m√°trixot miel≈ëtt √∫jra megh√≠vn√° mag√°t a f√ºggv√©ny
 talaldmeg<-function(){
-  #temp_sud<-msudoku
+  
   nullhely<<-tail(nummemory,1)[1] 
-  #for(u in ezek){
+  
   tipp<<-tail(nummemory,1)[2] 
-  #eddig ez volt minhely<-which(jps[u,])
-  # if(sum(msudoku==matrixmemory[,,actual])==81 && tail(which(jps[ezek[prevind1],]),1)!=nummemory[actual,2]){#ha megegyezik Ès a belsı index nem az utolsÛ volt
-  # minhely<-minhely[-1:-prevind2]
-  # }
-  #for(v in minhely){
-  #szamold<-szamold+1
+  
   msudoku[nullhely]<<-tipp
-  #nummemory<-rbind(nummemory,c(u,v,which(u==ezek),which(v==minhely)))
+  
   jobbmegoldback(msudoku)
-  #matrixmemory<-abind(matrixmemory,msudoku,along=3)
-  if(sum(jps)==0 && sum(msudoku==0)==0 && check()){#ha m·r nem lehet beÌrni, Ès nincsen  nulla, akkor megoldottuk
+  
+  if(sum(jps)==0 && sum(msudoku==0)==0 && check()){#ha m√°r nem lehet be√≠rni, √©s nincsen  nulla, akkor megoldottuk
     #print(msudoku)
-  } else if((sum(jps)==0 && sum(msudoku==0)!=0) || !check()){# nem lehet beÌrni, de van mÈg nulla - visszalÈp
-    msudoku<<-matrixmemory[,,dim(matrixmemory)[3]]#legyen ˙jra az elızı m·trix a vizsg·landÛ
+  } else if((sum(jps)==0 && sum(msudoku==0)!=0) || !check()){# nem lehet be√≠rni, de van m√©g nulla, vagy rosszul t√∂lt√∂tte ki - visszal√©p
+    msudoku<<-matrixmemory[,,dim(matrixmemory)[3]]#legyen √∫jra az el≈ëz≈ë m√°trix a vizsg√°land√≥
     
     actual <<- dim(matrixmemory)[3]
     prevind1 <<- nummemory[actual,3]
     prevind2 <<- nummemory[actual,4]
     
     milehet(msudoku)
-    #ide kell egy rekurzÌv f¸ggvÈny
+    
     if(tail(which(jps[ezek[prevind1],]),1)!=nummemory[actual,2]){
       prevind2 <<- prevind2+1
       nummemory[actual,2] <<- which(jps[ezek[prevind1],])[prevind2]
       nummemory[actual,4] <<- prevind2
       
       talaldmeg()
-      # } else if(tail(ezek,1)!=nummemory[actual,1]){
-      #         prevind1<-prevind1 + 1
-      #         nummemory[actual,1] <- ezek[prevind1]
-      #         nummemory[actual,2] <- which(jps[ezek[prevind1],])[1]
-      #         nummemory[actual,3] <- prevind1
-      #         nummemory[actual,4] <- 1
+
     } else{ 
-      lepjhatudsz()
+      lepjhatudsz()#visszal√©p egy kor√°bbon vizsg√°lt m√°trixra
       
-      talaldmeg()#visszalÈp egy kor·bbon vizsg·lt m·trixra
+      talaldmeg()
     }
-    #matrixmemory<-matrixmemory[,,-dim(matrixmemory)[3]] # tˆrˆlje ki a memÛri·bÛl az utolsÛ rossz m·trixot
     
-    
-    #milehet(msudoku)
-    # minszam<-min(rowSums(jps)[rowSums(jps)!=0])
-    # ezek<-which(rowSums(jps)==minszam)
-    # 
-    # actual<-dim(matrixmemory)[3]
-    # prevind1<-nummemory[actual-1,3]
-    # prevind2<-nummemory[actual-1,4]
-    # 
-    # if(tail(which(jps[ezek[prevind1],]),1)==nummemory[actual,2]){#ha megegyezik Ès a belsı index az utolsÛ volt, ez is benne volt sum(msudoku==matrixmemory[,,actual])==81 && 
-    #   ezek<-ezek[-1:-prevind1]
-    # }
-    # 
-    
-    
-    
-  } else {#lehet beÌrni, Ès van is  mÈg nulla, teh·t tippel megint
+  } else {#lehet be√≠rni, √©s van is  m√©g nulla, teh√°t tippel megint
     
     #milehet(msudoku)
     minszam<<-min(rowSums(jps)[rowSums(jps)!=0])
@@ -228,20 +199,11 @@ talaldmeg<-function(){
 
 
 
-
+# egyszer≈±s√≠ti a megold√°s menet√©t, √©s meghat√°rozza a kezdeti √©rt√©keket a talaldmeg()- hez
 msolve<-function(name){
   mer<-Sys.time()
   beolvas(name)
   milehet(msudoku)
-  
-  # sum(rowSums(jps))==0#elsı feltÈtel
-  # sum(jps)==0 #ez is elÈg nem kell az elızı
-  
-  
-  
-  
-  #szamold<-0
-  
   
   minszam<<-min(rowSums(jps)[rowSums(jps)!=0])
   ezek<<-which(rowSums(jps)==minszam)
@@ -255,15 +217,24 @@ msolve<-function(name){
   print(Sys.time()-mer)}
 
 
+#be√©p√≠tett megold√°s id≈ë √∂sszehasonl√≠t√°s√°hoz
+beepmegold<-function(game){
+  cal<-Sys.time()
+  beolvas(game)
+  solveSudoku(msudoku)
+  print(Sys.time()-cal)
+}
 
 
 
-#----------
-#valamelyik elıre bevitt j·tÈk
-sudokujatek<-hardest
-#beolvas f¸ggvÈnybe az egyik inputot a 6 kˆz¸l (most csak easy-re fut le jÛl, a tˆbbire nincs egyÈrtelm˚ lÈpÈs)
-beolvas(sudokujatek)
+#---------#
 
-#ezt v·ltoztat·s nÈlk¸l lehet futtatni, mert msudoku-nak menti a beolvas·s ut·n
+
+#valamelyik el≈ëre bevitt j√°t√©k kiv√°laszt√°sa (easy,medium,hard,extreme1,extreme2,extreme3,extreme4,hardest)
+sudokujatek<-select.list(game,title = "1:easy, 2:medium, 3:hard, 4:extreme1, 5:extreme2, 6:extreme3, 7:extreme4, 8:hardest")
+
+#sudoku megold√°s saj√°ttal 
 msolve(sudokujatek)
 
+#sudoku megold√°sbe√©p√≠tettel # csak id≈ë √∂sszehasonl√≠t√°s√°hoz
+beepmegold(sudokujatek)
