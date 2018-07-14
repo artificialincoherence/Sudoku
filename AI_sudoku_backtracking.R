@@ -235,6 +235,6 @@ sudokujatek<-select.list(game,title = "1:easy, 2:medium, 3:hard, 4:extreme1, 5:e
 
 #sudoku megoldás sajáttal 
 msolve(sudokujatek)
-
+plot(as.sudoku(msudoku), col = "DarkGray", par(bg="black"), colGame="#FE4DBD", colSolution="#b241f4", lty= "solid")
 #sudoku megoldásbeépítettel # csak idő összehasonlításához
 beepmegold(sudokujatek)
