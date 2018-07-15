@@ -16,20 +16,23 @@ extreme2 = "   7   2 , 7   59  ,  4  1 6 , 9   7  2,3       8,6  2   7 , 4 3  1 
 extreme3 = "   4 28  ,7    9  1,    8  73, 2   79  ,    2    ,  31   6 ,84  1    ,3  2    5,  79 8   "
 extreme4 = "  45    6, 2  6  7  ,8    73  ,5    17  , 3  8  9 ,  27    8,  78    9, 8  4  6 ,4    51  "
 hardest = "8        ,  36     , 7  9 2  , 5   7   ,    457  ,   1   3 ,  1    68,  85   1 , 9    4  "
+minimal="   8 1   ,      43 ,5        ,    7 8  ,      1  , 2  3    ,6      75,  34     ,   2  6  "
+minimal2="       1 ,     2  3,   4     ,      5  ,4 16     ,  71     , 5    2  ,    8  4 , 3 91    "
 
 #csak a végéhez, hogy könnyen lehessen választani
-game<-c(easy,medium,hard,extreme1,extreme2,extreme3,extreme4,hardest)
+game<-c(easy,medium,hard,extreme1,extreme2,extreme3,extreme4,hardest,minimal,minimal2)
 
 #beolvassa a megadott játékot
 beolvas<-function(sudoku){
-msus<<-matrix(0,9,9)
-msudoku<<-matrix(0,9,9)
-colnames(msudoku)<<-paste("C",c(1:9),sep = "") #1:9 #
-rownames(msudoku)<<-paste("R",c(1:9),sep = "") #c("A","B","C","D","E","F","G","H","I") # 
-for(i in 1:9){
-msudoku[i,]<<-rbind(as.numeric(unlist(strsplit(unlist(strsplit(sudoku, ","))[i],NULL))[1:9]))}                                                 
-msudoku[is.na(msudoku)]<<-0
-#print(msudoku)
+  #msus<<-matrix(0,9,9)
+  msudoku<<-matrix(0,9,9)
+  colnames(msudoku)<<-paste("C",c(1:9),sep = "") #1:9 #
+  rownames(msudoku)<<-paste("R",c(1:9),sep = "") #c("A","B","C","D","E","F","G","H","I") # 
+  for(i in 1:9){
+    msudoku[i,]<<-rbind(as.numeric(unlist(strsplit(unlist(strsplit(sudoku, ","))[i],NULL))[1:9]))}                                                 
+  msudoku[is.na(msudoku)]<<-0
+  eredeti<<-msudoku
+  #print(msudoku)
 }
 
 #megmondja, hogy az üres cellákban milyen értékek szerepelhetnek
@@ -213,8 +216,12 @@ msolve<-function(name){
   
   talaldmeg()
   
-  print(msudoku)
-  print(Sys.time()-mer)}
+  print(Sys.time()-mer)
+  
+  plot(as.sudoku(msudoku), col = "DarkGray", par(bg="black"), colGame="#b241f4", lty= "solid")
+  plot(as.sudoku(eredeti), col = NA, par(bg="transparent",new=T), colGame="#FE4DBD")
+  
+ }
 
 
 #beépített megoldás idő összehasonlításához
@@ -231,10 +238,15 @@ beepmegold<-function(game){
 
 
 #valamelyik előre bevitt játék kiválasztása (easy,medium,hard,extreme1,extreme2,extreme3,extreme4,hardest)
-sudokujatek<-select.list(game,title = "1:easy, 2:medium, 3:hard, 4:extreme1, 5:extreme2, 6:extreme3, 7:extreme4, 8:hardest")
+sudokujatek<-select.list(game,title = "1:easy, 2:medium, 3:hard, 4:extreme1, 5:extreme2, 6:extreme3, 7:extreme4, 8:hardest, 9:minimal, 10:minimal2")
 
 #sudoku megoldás sajáttal 
 msolve(sudokujatek)
-plot(as.sudoku(msudoku), col = "DarkGray", par(bg="black"), colGame="#FE4DBD", colSolution="#b241f4", lty= "solid")
+
 #sudoku megoldásbeépítettel # csak idő összehasonlításához
 beepmegold(sudokujatek)
+
+
+
+
+
