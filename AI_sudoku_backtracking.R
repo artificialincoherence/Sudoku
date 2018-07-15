@@ -218,8 +218,9 @@ msolve<-function(name){
   
   print(Sys.time()-mer)
   
-  plot(as.sudoku(msudoku), col = "DarkGray", par(bg="black"), colGame="#b241f4", lty= "solid")
-  plot(as.sudoku(eredeti), col = NA, par(bg="transparent",new=T), colGame="#FE4DBD")
+ plot(as.sudoku(msudoku), col = "Black", par(bg="#f4c2c2"), colGame="#f9046f", lty= "solid")
+  plot(as.sudoku(eredeti), col = NA, par(bg="transparent",new=T), colGame="#842593")
+  
   
  }
 
