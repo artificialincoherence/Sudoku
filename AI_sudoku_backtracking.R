@@ -54,7 +54,7 @@ jps<<-t(colSums(psol)==3)
 #az üres helyekre beírja az egyértelmű eseteket
 jobeir<-function(){
   
-  milehet(msudoku)# meghatározza jps -t hogy hova lehet írni mit
+  milehet(msudoku)# meghatározza jps -t, hogy hova lehet írni mit
   
   mstart<<-msudoku # hogy loopnál össze tudja hasonlítani a mostanival
   
@@ -217,10 +217,9 @@ msolve<-function(name){
   talaldmeg()
   
   print(Sys.time()-mer)
-  
- plot(as.sudoku(msudoku), col = "Black", par(bg="#f4c2c2"), colGame="#f9046f", lty= "solid")
-  plot(as.sudoku(eredeti), col = NA, par(bg="transparent",new=T), colGame="#842593")
-  
+
+plot(as.sudoku(msudoku), col = "Black", par(bg="White"), colGame="#f9046f", lty= "solid") #új elemek lilával
+plot(as.sudoku(eredeti), col = NA, par(bg="transparent",new=T), colGame="#842593") #eredeti elemek rózsaszínnel
   
  }
 
